@@ -12,17 +12,17 @@
 (defn handler [response]
   (.log js/console (str response))
   (def temparvo response)
-  (reset! files (into {} (js->clj response))))
+  (reset! files (js->clj response)))
 
 (defn error-handler [{:keys [status status-text]}]
   (.log js/console (str "something bad happened: " status " " status-text)))
 
-(defn update-currently-playing-song [song]
-  (reset! currently-playing-song (clojure.string/join ["http://localhost:3449/song/" (name song)]))
+(defn update-currently-playing-song [song-id]
+  (reset! currently-playing-song (clojure.string/join ["http://localhost:3449/song/" (str song-id)]))
   (.play (.getElementById js/document "audiotag")))
 
-(defn clickable-link [file-key]
-  [:div [:label {:id file-key :on-mouse-over #(.log js/console "Jee") :on-click #(update-currently-playing-song file-key)} (file-key @files)] [:br]])
+(defn clickable-link [{id :id, title :title}]
+  [:li [:label {:id id :on-mouse-over #() :on-click #(update-currently-playing-song id)} title] [:br]])
 
 (defn get-folder-list []
   (POST "/files"
@@ -38,6 +38,13 @@
   [:div
    (for [file-key (keys @files)]
      ^{:key file-key} [clickable-link file-key])])
+(defn albums []
+  [:div
+   (for [{album :album
+          songs :songs} @files]
+     [:ul album
+      (for [song (sort-by :track-number songs)]
+        ^{:key (:id song)} [clickable-link song])])])
 
 ;; -------------------------
 ;; Views
@@ -50,9 +57,9 @@
 
 (defn home-page []
   [:div [:h2 "Clojure media server"]
-   [:div [:a {:href "/about"} "go to about page"]]
+                                        ;[:div [:a {:href "/about"} "go to about page"]]
    [playlist-song]
-   [files-in-folder]])
+   [albums]])
 
 (defn about-page []
   [:div [:h2 "A clojure-media-server"]

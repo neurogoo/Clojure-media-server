@@ -1,19 +1,38 @@
 (ns clojure-media-server.library
-  (:gen-class))
+  (:require [clojure.java.io :as io]
+            [id3]))
 (def music-library-home "/home/tokuogum/Clojure/clojure-media-server/testmedia")
 (defn test-print []
-  (let [files (file-seq (clojure.java.io/file music-library-home))]
+  (let [files (file-seq (io/file music-library-home))]
     (doseq [x files]
       (clojure.pprint/pprint x))))
-(defn get-sorted-files-in-folder [folder]
-  (sort (filter #(re-matches #"(.*).mp3$" %) (.list (clojure.java.io/file music-library-home)))))
+(defn all-files-in-folder [folder]
+  (let [files (.listFiles folder)]
+    (if (seq files)
+      (map #(if (.isDirectory %)
+              (all-files-in-folder %)
+              %) files))))
+(defn populate-with-song-metadata [song]
+  (let [id3-tag-data (id3/with-mp3 [mp3 (.getPath song)] (:tag mp3))]
+    (hash-map :path (.getPath song) :title (.trim (:title id3-tag-data)) :album (.trim (:album id3-tag-data)) :track-number (.trim (:track-number id3-tag-data)))))
+(defn get-sorted-files-in-folder
+  "ei sorttaa vielä"
+  [folder]
+  (map #(populate-with-song-metadata %)
+       (filter #(re-matches #"(.*).mp3$" (.getPath %))
+               (flatten (all-files-in-folder (io/file music-library-home))))))
 (defn get-indexed-files-in-folder [folder]
-  (map-indexed (fn [idx i] {(keyword (str idx)) i}) (get-sorted-files-in-folder folder)))
+  (map #(hash-map :album (first %) :songs (second %)) (group-by :album (map-indexed (fn [idx i] (assoc i :id idx)) (get-sorted-files-in-folder folder)))))
 (defn get-files-in-folder [folder]
   (get-indexed-files-in-folder folder))
 (defn get-playlist []
   )
 (defn get-song []
-  (clojure.java.io/file "/home/tokuogum/Clojure/clojure-media-server/testmedia/Supergiant Games - Bastion Original Soundtrack - 02 A Proper Story.mp3"))
+  (io/file "/home/tokuogum/Clojure/clojure-media-server/testmedia/Supergiant Games - Bastion Original Soundtrack/Supergiant Games - Bastion Original Soundtrack - 01 Get Used to It.mp3"))
 (defn get-song-data [id]
-  (clojure.java.io/file (clojure.string/join ["/home/tokuogum/Clojure/clojure-media-server/testmedia/" ((keyword id)(into {} (get-indexed-files-in-folder ""))) ])))
+  (io/file (:path (some #(when (= (str (:id %)) id) %) (flatten (map :songs (get-indexed-files-in-folder "")))))))
+
+;(id3/with-mp3 [mp3 "/home/tokuogum/Clojure/clojure-media-server/testmedia/Supergiant Games - Bastion Original Soundtrack/Supergiant Games - Bastion Original Soundtrack - 01 Get Used to It.mp3"] (:tag mp3))
+                                        ;(map #(.isDirectory %) (.listFiles (io/file music-library-home)))
+;(clojure.pprint/pprint (map #(.list %) (.listFiles (io/file music-library-home))))
+
