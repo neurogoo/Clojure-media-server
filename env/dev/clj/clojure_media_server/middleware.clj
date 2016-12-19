@@ -3,12 +3,11 @@
             [prone.middleware :refer [wrap-exceptions]]
             [ring.middleware.reload :refer [wrap-reload]]
             [ring.middleware.json :refer [wrap-json-params wrap-json-body]]
-            [ring.middleware.format :refer [wrap-restful-format]]))
+            [ring.middleware.transit :refer [wrap-transit-response]]))
 
 (defn wrap-middleware [handler]
   (-> handler
       (wrap-defaults (assoc-in site-defaults [:security :anti-forgery] false))
       wrap-exceptions
       wrap-reload
-      wrap-json-params
-      (wrap-restful-format :formats [:json-kw])))
+      (wrap-transit-response {:encoding :json, :opts {}})))

@@ -1,7 +1,8 @@
 (ns clojure-media-server.repl
   (:use clojure-media-server.handler
         ring.server.standalone
-        [ring.middleware file-info file]))
+        [ring.middleware file-info file])
+  (:require [mount.core :as mount]))
 
 (defonce server (atom nil))
 
@@ -23,6 +24,7 @@
     (reset! server
             (serve (get-handler)
                    {:port port
+                    :init (mount/start)
                     :auto-reload? true
                     :join? false}))
     (println (str "You can view the site at http://localhost:" port))))

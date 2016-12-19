@@ -16,6 +16,8 @@
                  [compojure "1.5.1"]
                  [hiccup "1.0.5"]
                  [zsau/id3 "0.1.1"]
+                 [mount "0.1.10"]
+                 [ring-transit "0.1.6"]
                  [yogthos/config "0.8"]
                  [org.clojure/clojurescript "1.9.229"
                   :scope "provided"]
@@ -30,6 +32,7 @@
              :exclusions [org.clojure/clojure]]]
 
   :ring {:handler clojure-media-server.handler/app
+         :init clojure-media-server.handler/init
          :uberwar-name "clojure-media-server.war"}
 
   :min-lein-version "2.5.0"

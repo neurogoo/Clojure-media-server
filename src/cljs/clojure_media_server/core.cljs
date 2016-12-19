@@ -8,6 +8,8 @@
 ;; Misc
 (def files (atom {}))
 (def currently-playing-song (atom '()))
+(def currently-playing-song-id (atom '()))
+(def currently-playing-song-metadata (atom {}))
 
 (defn handler [response]
   (.log js/console (str response))
@@ -16,9 +18,17 @@
 
 (defn error-handler [{:keys [status status-text]}]
   (.log js/console (str "something bad happened: " status " " status-text)))
-
+(defn update-currently-playing-song-metadata []
+  (GET (clojure.string/join ["/song/" (str @currently-playing-song-id) "/data"])
+       {:handler (fn [response]
+                   (reset! currently-playing-song-metadata (js->clj response)))
+        :error-handler error-handler
+        :keywords? true
+        }))
 (defn update-currently-playing-song [song-id]
+  (reset! currently-playing-song-id (str song-id))
   (reset! currently-playing-song (clojure.string/join ["http://localhost:3449/song/" (str song-id)]))
+  (update-currently-playing-song-metadata)
   (.play (.getElementById js/document "audiotag")))
 
 (defn clickable-link [{id :id, title :title}]
@@ -26,11 +36,8 @@
 
 (defn get-folder-list []
   (POST "/files"
-        {:format :json
-         :response-format :json              
-         :handler handler
+        {:handler handler
          :error-handler error-handler
-         :keywords? true
          :params {"folder" "/home/tokuogum/Clojure/clojure-media-server/testmedia"}}))
 (defn files-in-foldera []
   [:div])
@@ -52,13 +59,19 @@
 (defn playlist-video []
   [:video {:controls true :src "http://v2v.cc/~j/theora_testsuite/320x240.ogg"} "Your browser does not support html 5 video"])
 
-(defn playlist-song []
-  [:audio {:id "audiotag" :controls true :src @currently-playing-song}])
+(defn song-title []
+  (str "Title: " (:title @currently-playing-song-metadata) ))
+
+(defn audio-player-tag []
+  [:div
+   [:label (song-title) ][:br]
+   [:label "Track-number"][:br]
+   [:audio {:id "audiotag" :controls true :src @currently-playing-song}]])
 
 (defn home-page []
   [:div [:h2 "Clojure media server"]
                                         ;[:div [:a {:href "/about"} "go to about page"]]
-   [playlist-song]
+   [audio-player-tag]
    [albums]])
 
 (defn about-page []
@@ -87,7 +100,6 @@
   (reagent/render [current-page] (.getElementById js/document "app")))
 
 (defn init! []
-  (get-folder-list)
   (accountant/configure-navigation!
     {:nav-handler
      (fn [path]
@@ -97,3 +109,4 @@
        (secretary/locate-route path))})
   (accountant/dispatch-current!)
   (mount-root))
+(get-folder-list)
