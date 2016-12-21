@@ -15,9 +15,6 @@
        [:b "lein figwheel"]
        " in order to start the compiler"]])
 
-(defn init []
-  (mount/start))
-
 (defn head []
   [:head
    [:meta {:charset "utf-8"}]
@@ -46,7 +43,7 @@
    :body (mylib/get-song-data id)})
 
 (defn return-song-metadata [id]
-  (hash-map :jotain (mylib/get-song-metadata id)))
+  (mylib/get-song-metadata id))
 
 (defroutes routes
   (GET "/" [] (loading-page))
@@ -55,8 +52,12 @@
   (context "/song/:id" [id]
            (GET "/" [] (return-song-data id))
            (GET "/daa" [] (return-song-metadata id)))
-  (GET "/song/:id/data" [id] (return-song-metadata id))
-  (POST "/files" [req] {:status 200 :headers {"Content-Type" "application/transit+json; charset=UTF-8"} :body (return-files-in-folder (get-in req [:params "folder"]))}#_(response (return-files-in-folder (get-in req [:params "folder"]))))
+  (GET "/song/:id/data" [id] {:status 200
+                              :headers {"Content-Type" "application/transit+json; charset=UTF-8"}
+                              :body (return-song-metadata id)})
+  (POST "/files" [req] {:status 200
+                        :headers {"Content-Type" "application/transit+json; charset=UTF-8"}
+                        :body (return-files-in-folder (get-in req [:params "folder"]))}#_(response (return-files-in-folder (get-in req [:params "folder"]))))
   
   (resources "/")
   (not-found "Not Found"))

@@ -32,7 +32,6 @@
              :exclusions [org.clojure/clojure]]]
 
   :ring {:handler clojure-media-server.handler/app
-         :init clojure-media-server.handler/init
          :uberwar-name "clojure-media-server.war"}
 
   :min-lein-version "2.5.0"

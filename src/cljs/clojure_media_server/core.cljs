@@ -18,6 +18,7 @@
 
 (defn error-handler [{:keys [status status-text]}]
   (.log js/console (str "something bad happened: " status " " status-text)))
+
 (defn update-currently-playing-song-metadata []
   (GET (clojure.string/join ["/song/" (str @currently-playing-song-id) "/data"])
        {:handler (fn [response]
@@ -45,12 +46,13 @@
   [:div
    (for [file-key (keys @files)]
      ^{:key file-key} [clickable-link file-key])])
+
 (defn albums []
   [:div
    (for [{album :album
           songs :songs} @files]
      [:ul album
-      (for [song (sort-by :track-number songs)]
+      (for [song (sort-by #(js/parseInt (:track-number %)) songs)]
         ^{:key (:id song)} [clickable-link song])])])
 
 ;; -------------------------
@@ -62,10 +64,13 @@
 (defn song-title []
   (str "Title: " (:title @currently-playing-song-metadata) ))
 
+(defn song-track-number []
+  (str "Track number: " (:track-number @currently-playing-song-metadata)))
+
 (defn audio-player-tag []
   [:div
    [:label (song-title) ][:br]
-   [:label "Track-number"][:br]
+   [:label (song-track-number)][:br]
    [:audio {:id "audiotag" :controls true :src @currently-playing-song}]])
 
 (defn home-page []
