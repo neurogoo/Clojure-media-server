@@ -1,6 +1,7 @@
 (ns clojure-media-server.database
   (:require [mount.core :refer [defstate]]
             [clojure.java.io :as io]
+            [cprop.core :refer [load-config]]
             [id3]))
 
 (defn all-files-in-folder [folder]
@@ -15,7 +16,7 @@
 (defn get-sorted-files-in-folder
   "ei sorttaa vielä"
   []
-  (let [music-library-home "/home/tokuogum/Clojure/clojure-media-server/testmedia"]
+  (let [music-library-home (or (:cloms-music-home (load-config)) "/home/tokuogum/Clojure/clojure-media-server/testmedia")]
     (map #(populate-with-song-metadata %)
        (filter #(re-matches #"(.*).mp3$" (.getPath %))
                (flatten (all-files-in-folder (io/file music-library-home)))))))

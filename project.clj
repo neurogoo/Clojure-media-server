@@ -17,6 +17,7 @@
                  [hiccup "1.0.5"]
                  [zsau/id3 "0.1.1"]
                  [mount "0.1.10"]
+                 [cprop "0.1.9"]
                  [ring-transit "0.1.6"]
                  [yogthos/config "0.8"]
                  [org.clojure/clojurescript "1.9.229"

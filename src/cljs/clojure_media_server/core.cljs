@@ -28,21 +28,24 @@
         }))
 (defn update-currently-playing-song [song-id]
   (reset! currently-playing-song-id (str song-id))
-  (reset! currently-playing-song (clojure.string/join ["http://localhost:3449/song/" (str song-id)]))
+  (reset! currently-playing-song (clojure.string/join ["/song/" (str song-id)]))
   (update-currently-playing-song-metadata)
   (.play (.getElementById js/document "audiotag")))
 
 (defn clickable-link [{id :id, title :title}]
   [:li {:display "none" }
    [:label {:id id
-                :on-mouse-over #()
-                :on-click #(update-currently-playing-song id)} title] [:br]])
+            :on-mouse-over #()
+            :on-click (fn [e] (update-currently-playing-song id)
+                        (.stopPropagation e))} title]
+   [:br]])
 
 (defn get-folder-list []
   (POST "/files"
         {:handler handler
          :error-handler error-handler
-         :params {"folder" "/home/tokuogum/Clojure/clojure-media-server/testmedia"}}))
+         :params {"folder" ""}}))
+
 (defn display-album [album songs]
   (reagent/with-let [opened (atom false)]
     [:ul {:on-click #(swap! opened not)}
@@ -53,9 +56,9 @@
 
 (defn albums []
   [:div
-   (doall (for [{album :album
-                 songs :songs} @files]
-            [display-album album songs]))])
+   (for [{album :album
+          songs :songs} @files]
+     [display-album album songs])])
 
 ;; -------------------------
 ;; Views
