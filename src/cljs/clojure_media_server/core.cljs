@@ -33,27 +33,29 @@
   (.play (.getElementById js/document "audiotag")))
 
 (defn clickable-link [{id :id, title :title}]
-  [:li [:label {:id id :on-mouse-over #() :on-click #(update-currently-playing-song id)} title] [:br]])
+  [:li {:display "none" }
+   [:label {:id id
+                :on-mouse-over #()
+                :on-click #(update-currently-playing-song id)} title] [:br]])
 
 (defn get-folder-list []
   (POST "/files"
         {:handler handler
          :error-handler error-handler
          :params {"folder" "/home/tokuogum/Clojure/clojure-media-server/testmedia"}}))
-(defn files-in-foldera []
-  [:div])
-(defn files-in-folder []
-  [:div
-   (for [file-key (keys @files)]
-     ^{:key file-key} [clickable-link file-key])])
+(defn display-album [album songs]
+  (reagent/with-let [opened (atom false)]
+    [:ul {:on-click #(swap! opened not)}
+     album
+     (when @opened
+       (for [song (sort-by #(js/parseInt (:track-number %)) songs)]
+       ^{:key (:id song)} [clickable-link song]))]))
 
 (defn albums []
   [:div
-   (for [{album :album
-          songs :songs} @files]
-     [:ul album
-      (for [song (sort-by #(js/parseInt (:track-number %)) songs)]
-        ^{:key (:id song)} [clickable-link song])])])
+   (doall (for [{album :album
+                 songs :songs} @files]
+            [display-album album songs]))])
 
 ;; -------------------------
 ;; Views
