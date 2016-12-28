@@ -12,7 +12,10 @@
               %) files))))
 (defn populate-with-song-metadata [song]
   (let [id3-tag-data (id3/with-mp3 [mp3 (.getPath song)] (:tag mp3))]
-    (hash-map :path (.getPath song) :title (.trim (:title id3-tag-data)) :album (.trim (:album id3-tag-data)) :track-number (.trim (:track-number id3-tag-data)))))
+    (hash-map :path (.getPath song)
+              :title (.trim (or (:title id3-tag-data) ""))
+              :album (.trim (or (:album id3-tag-data) ""))
+              :track-number (.trim (or (:track-number id3-tag-data) "")))))
 (defn get-sorted-files-in-folder
   "ei sorttaa vielä"
   []

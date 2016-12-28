@@ -10,6 +10,7 @@
 (def currently-playing-song (atom '()))
 (def currently-playing-song-id (atom '()))
 (def currently-playing-song-metadata (atom {}))
+(def playlist (atom []))
 
 (defn handler [response]
   (.log js/console (str response))
@@ -26,6 +27,8 @@
         :error-handler error-handler
         :keywords? true
         }))
+;(defn build-playlist-from-album [song-id]
+;  (let [album (first )]))
 (defn update-currently-playing-song [song-id]
   (reset! currently-playing-song-id (str song-id))
   (reset! currently-playing-song (clojure.string/join ["/song/" (str song-id)]))
@@ -90,9 +93,6 @@
 
 (defn current-page []
   [:div [(session/get :current-page)]])
-
-(defn playlist []
-  [:div])
 
 ;; -------------------------
 ;; Routes
