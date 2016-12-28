@@ -2,7 +2,8 @@
   (:require [mount.core :refer [defstate]]
             [clojure.java.io :as io]
             [cprop.core :refer [load-config]]
-            [id3]))
+            [id3]
+            [claudio.id3 :as clid3]))
 
 (defn all-files-in-folder [folder]
   (let [files (.listFiles folder)]
@@ -10,21 +11,32 @@
       (map #(if (.isDirectory %)
               (all-files-in-folder %)
               %) files))))
+(defn exception-friendly-tag [tag data]
+  (try
+    (tag data)
+    (catch Exception e "")))
 (defn populate-with-song-metadata [song]
-  (let [id3-tag-data (id3/with-mp3 [mp3 (.getPath song)] (:tag mp3))]
+  (let [id3-tag-data (try (clid3/read-tag song)
+                          (catch Exception e {:title "" :album "" :track-number ""})
+                          (finally {:title "" :album "" :track-number ""}))]
     (hash-map :path (.getPath song)
               :title (.trim (or (:title id3-tag-data) ""))
               :album (.trim (or (:album id3-tag-data) ""))
-              :track-number (.trim (or (:track-number id3-tag-data) "")))))
-(defn get-sorted-files-in-folder
+              :track-number (.trim (or (:track id3-tag-data) "")))))
+(defn get-files-in-folder
   "ei sorttaa vielä"
   []
   (let [music-library-home (or (:cloms-music-home (load-config)) "/home/tokuogum/Clojure/clojure-media-server/testmedia")]
     (map #(populate-with-song-metadata %)
        (filter #(re-matches #"(.*).mp3$" (.getPath %))
                (flatten (all-files-in-folder (io/file music-library-home)))))))
+(defn get-all-albums [songs]
+  (distinct (map :album songs)))
 (defn populate-db []
-  (map #(hash-map :album (first %) :songs (second %)) (group-by :album (map-indexed (fn [idx i] (assoc i :id idx)) (get-sorted-files-in-folder)))))
-
+  (let [songs (get-files-in-folder)]
+    (hash-map :albums (into {} (map-indexed (fn [idx i] [(keyword (str idx)) i]) (get-all-albums songs))),
+              :songs (into {} (map-indexed (fn [idx i] [(keyword (str idx)) i]) songs)))))
 (defstate db :start (populate-db))
 
+(defn get-song-by-id [id]
+  (get-in db [:songs (keyword id)]))

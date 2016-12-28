@@ -29,11 +29,18 @@
         }))
 ;(defn build-playlist-from-album [song-id]
 ;  (let [album (first )]))
+
+(defn album-songs-sorted [album]
+  (let [songs (:songs @files)]
+    (sort-by #(js/parseInt (:track-number (second %))) (filter #(= album (:album (second %))) songs))))
+
 (defn update-currently-playing-song [song-id]
-  (reset! currently-playing-song-id (str song-id))
-  (reset! currently-playing-song (clojure.string/join ["/song/" (str song-id)]))
+  (reset! currently-playing-song-id (name song-id))
+  (reset! currently-playing-song (clojure.string/join ["/song/" (name song-id)]))
   (update-currently-playing-song-metadata)
-  (.play (.getElementById js/document "audiotag")))
+  (.addEventListener (.getElementById js/document "audiotag") "ended"
+                     #(update-currently-playing-song (key (second (drop-while (fn [song] (not= song-id (first song))) (album-songs-sorted (get-in @files [:songs song-id :album])))))))
+  (js/setTimeout (.play (.getElementById js/document "audiotag")) 1000))
 
 (defn clickable-link [{id :id, title :title}]
   [:li {:display "none" }
@@ -54,14 +61,14 @@
     [:ul {:on-click #(swap! opened not)}
      album
      (when @opened
-       (for [song (sort-by #(js/parseInt (:track-number %)) songs)]
-       ^{:key (:id song)} [clickable-link song]))]))
+       (for [song (sort-by #(js/parseInt (:track-number (second %))) (filter #(= album (:album (second %))) songs))]
+       ^{:key (:id (key song))} [clickable-link {:id (key song) :title (:title (val song))}]))]))
 
 (defn albums []
   [:div
-   (for [{album :album
-          songs :songs} @files]
-     [display-album album songs])])
+   (let [songs (:songs @files)]
+     (for [album (:albums @files)]
+       [display-album (second album) songs]))])
 
 ;; -------------------------
 ;; Views
