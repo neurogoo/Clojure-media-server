@@ -3,7 +3,8 @@
               [reagent.session :as session]
               [secretary.core :as secretary :include-macros true]
               [accountant.core :as accountant]
-              [ajax.core :refer [GET POST]]))
+              [ajax.core :refer [GET POST]]
+              [goog.string :as gstring]))
 ;; -----------------
 ;; Misc
 (def files (atom {}))
@@ -93,7 +94,9 @@
                                         ;[:div [:a {:href "/about"} "go to about page"]]
    [audio-player-tag]
    [albums]
-   [:i.fa.fa-circle-o-notch.fa-spin.fa-3x.fa-fw]])
+   [:footer.site-footer  "Currently playing: "
+    [:br]
+    [:div [:i.fa.fa-backward] (gstring/unescapeEntities "&nbsp;") [:i.fa.fa-pause] (gstring/unescapeEntities "&nbsp;") "" [:i.fa.fa-forward]]]])
 
 (defn about-page []
   [:div [:h2 "A clojure-media-server"]
