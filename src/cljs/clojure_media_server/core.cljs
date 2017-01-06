@@ -92,7 +92,8 @@
   [:div [:h2 "Clojure media server"]
                                         ;[:div [:a {:href "/about"} "go to about page"]]
    [audio-player-tag]
-   [albums]])
+   [albums]
+   [:i.fa.fa-circle-o-notch.fa-spin.fa-3x.fa-fw]])
 
 (defn about-page []
   [:div [:h2 "A clojure-media-server"]

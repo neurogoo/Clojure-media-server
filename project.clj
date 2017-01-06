@@ -26,7 +26,10 @@
                  [secretary "1.2.3"]
                  [venantius/accountant "0.1.7"
                   :exclusions [org.clojure/tools.reader]]
-                 [cljs-ajax "0.5.8"]]
+                 [cljs-ajax "0.5.8"]
+                 ;;web resurssit
+                 [org.webjars/font-awesome "4.7.0"]
+                 [ring-webjars "0.1.1"]]
 
   :plugins [[lein-environ "1.0.2"]
             [lein-cljsbuild "1.1.1"]
@@ -64,6 +67,8 @@
               :pretty-print  false}}
             :app
             {:source-paths ["src/cljs" "src/cljc" "env/dev/cljs"]
+             :figwheel
+             {:websocket-url "ws://192.168.1.123:3449/figwheel-ws"}
              :compiler
              {:main "clojure-media-server.dev"
               :asset-path "/js/out"

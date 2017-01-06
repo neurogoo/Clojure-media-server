@@ -11,6 +11,7 @@
       (map #(if (.isDirectory %)
               (all-files-in-folder %)
               %) files))))
+;joee
 (defn exception-friendly-tag [tag data]
   (try
     (tag data)
@@ -33,8 +34,9 @@
 (defn get-all-albums [songs]
   (distinct (map :album songs)))
 (defn populate-db []
-  (let [songs (get-files-in-folder)]
-    (hash-map :albums (into {} (map-indexed (fn [idx i] [(keyword (str idx)) i]) (get-all-albums songs))),
+  (let [songs (get-files-in-folder)
+        albums (get-all-albums songs)]
+    (hash-map :albums (into {} (map-indexed (fn [idx i] [(keyword (str idx)) i]) albums)),
               :songs (into {} (map-indexed (fn [idx i] [(keyword (str idx)) i]) songs)))))
 (defstate db :start (populate-db))
 

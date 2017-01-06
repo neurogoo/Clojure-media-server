@@ -24,7 +24,7 @@
     (reset! server
             (serve (get-handler)
                    {:port port
-                    :init (mount/start)
+                    ;:init (mount/start)
                     :auto-reload? true
                     :join? false}))
     (println (str "You can view the site at http://localhost:" port))))
