@@ -7,18 +7,9 @@
 -- :doc Create album table
 create table albums (
   id         integer primary key, 
-  name       varchar(40),
-  path       varchar(40),
+  name       varchar,
   created_at timestamp not null default current_timestamp
 )
-
-/* The create-character-table definition above uses the full,
-long-hand "-- :key :value" syntax to specify the :command and
-:result.  We can save some typing by using the short-hand notation
-as the second and (optionally) third values for the :name.  Below, the
-:! is equivalent to ":command :!", where :! is an alias for
-:execute.  The default :result is :raw when not specified, so
-there is no need to specify it as the third value. */
 
 -- :name drop-albums-table :!
 -- :doc Drop albums table if exists
@@ -27,15 +18,45 @@ drop table if exists albums
 -- A :result value of :n below will return affected row count:
 -- :name insert-album :! :n
 -- :doc Insert a single character
-insert into albums (name, path)
-values (:name, :path)
+insert into albums (name)
+values (:name)
 
 -- :name insert-albums :! :n
 -- :doc Insert multiple albums with :tuple* parameter type
-insert into albums (name, path)
+insert into albums (name)
 values :tuple*:albums
-
 
 -- :name get-all-albums :? :*
 -- :doc Get all albums
 select * from albums
+
+-- :name create-song-table
+-- :command :execute
+-- :result :raw
+-- :doc Create song table
+create table songs (
+  id         integer primary key,
+  album_id   integer,
+  name       varchar,
+  path       varchar,
+  created_at timestamp not null default current_timestamp
+)
+
+-- :name drop-songs-table :!
+-- :doc Drop songs table if exists
+drop table if exists songs
+
+-- A :result value of :n below will return affected row count:
+-- :name insert-song :! :n
+-- :doc Insert a single character
+insert into songs (album_id, name, path)
+values (:album_id, :name, :path)
+
+-- :name insert-songs :! :n
+-- :doc Insert multiple songs with :tuple* parameter type
+insert into songs (album_id, name, path)
+values :tuple*:songs
+
+-- :name get-all-songs :? :*
+-- :doc Get all songs
+select * from songs
