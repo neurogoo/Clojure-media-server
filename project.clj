@@ -27,7 +27,10 @@
                  [venantius/accountant "0.1.7"
                   :exclusions [org.clojure/tools.reader]]
                  [cljs-ajax "0.5.8"]
-                 ;;web resurssit
+                 ;;database
+                 [com.layerware/hugsql "0.4.7"]
+                 [org.xerial/sqlite-jdbc "3.15.1"]
+                 ;;frontend 
                  [org.webjars/font-awesome "4.7.0"]
                  [ring-webjars "0.1.1"]]
 

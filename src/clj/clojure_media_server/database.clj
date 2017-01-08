@@ -17,6 +17,7 @@
     (tag data)
     (catch Exception e "")))
 (defn populate-with-song-metadata [song]
+  "Read the tags of each file and return them as map"
   (let [id3-tag-data (try (clid3/read-tag song)
                           (catch Exception e {:title "" :album "" :track-number ""})
                           (finally {:title "" :album "" :track-number ""}))]
