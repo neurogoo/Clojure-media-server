@@ -6,9 +6,6 @@
 
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [ring-server "0.4.0"]
-                 [reagent "0.6.0"]
-                 [reagent-forms "0.5.25"]
-                 [reagent-utils "0.2.0"]
                  [ring "1.5.0"]
                  [ring/ring-defaults "0.2.1"]
                  [ring/ring-json "0.4.0"]
@@ -32,7 +29,11 @@
                  [org.xerial/sqlite-jdbc "3.15.1"]
                  ;;frontend 
                  [org.webjars/font-awesome "4.7.0"]
-                 [ring-webjars "0.1.1"]]
+                 [ring-webjars "0.1.1"]
+                 [reagent "0.6.0"]
+                 [reagent-forms "0.5.25"]
+                 [reagent-utils "0.2.0"]
+                 [re-frame "0.9.1"]]
 
   :plugins [[lein-environ "1.0.2"]
             [lein-cljsbuild "1.1.1"]

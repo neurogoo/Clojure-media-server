@@ -5,6 +5,7 @@
             [hiccup.page :refer [include-js include-css html5]]
             [clojure-media-server.middleware :refer [wrap-middleware]]
             [clojure-media-server.library :as mylib]
+            [clojure-media-server.database :as database]
             [mount.core :as mount]
             [config.core :refer [env]]))
 
@@ -49,7 +50,12 @@
 (defroutes routes
   (GET "/" [] (loading-page))
   (GET "/about" [] (loading-page))
-                                        ;(GET "/song" [] (song))
+  (GET "/song" [] {:status 200
+                   :headers {"Content-Type" "application/transit+json; charset=UTF-8"}
+                   :body (database/get-songs)})
+  (GET "/song/album/:id" [id] {:status 200
+                               :headers {"Content-Type" "application/transit+json; charset=UTF-8"}
+                               :body (database/get-album-songs id)})
   (context "/song/:id" [id]
            (GET "/" [] (return-song-data id))
            (GET "/daa" [] (return-song-metadata id)))
@@ -59,7 +65,9 @@
   (POST "/files" [req] {:status 200
                         :headers {"Content-Type" "application/transit+json; charset=UTF-8"}
                         :body (return-files-in-folder (get-in req [:params "folder"]))}#_(response (return-files-in-folder (get-in req [:params "folder"]))))
-  
+  (GET "/album" [] {:status 200
+                    :headers {"Content-Type" "application/transit+json; charset=UTF-8"}
+                    :body (database/get-albums)})  
   (resources "/")
   (not-found "Not Found"))
 

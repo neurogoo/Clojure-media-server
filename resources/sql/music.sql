@@ -30,6 +30,11 @@ values :tuple*:albums
 -- :doc Get all albums
 select * from albums
 
+-- :name get-song-by-id :? :1
+-- :doc Get character by id
+select * from albums
+where id = :id
+
 -- :name create-song-table
 -- :command :execute
 -- :result :raw
@@ -60,3 +65,13 @@ values :tuple*:songs
 -- :name get-all-songs :? :*
 -- :doc Get all songs
 select * from songs
+
+-- :name get-song-by-id :? :1
+-- :doc Get character by id
+select * from songs
+where id = :id
+
+-- :name get-songs-by-album-id :? :*
+-- :doc Get character by id
+select * from songs
+where album_id = :album_id

@@ -11,6 +11,10 @@
    :subprotocol "sqlite",
    :subname     "test.db"})
 
+;;initialize database handlers
+(hugsql/def-db-fns "sql/music.sql")
+(hugsql/def-sqlvec-fns "sql/music.sql")
+
 (defn all-files-in-folder [folder]
   (let [files (.listFiles folder)]
     (if (seq files)
@@ -49,6 +53,7 @@
         albums (get-all-album-titles songs)]
     (hash-map :albums (into {} (map-indexed (fn [idx i] [(keyword (str idx)) i]) albums)),
               :songs (into {} (map-indexed (fn [idx i] [(keyword (str idx)) i]) songs)))))
+
 (defn recreate-album-table []
   (drop-albums-table sqlitedb)
   (create-album-table sqlitedb))
@@ -69,12 +74,25 @@
                                           :path (:path %)}) songs)))))
 
 (defn start-sql-connection []
-  ;;initialize database functions
-  (hugsql/def-db-fns "sql/music.sql")
-  (hugsql/def-sqlvec-fns "sql/music.sql")
-  (populate-db))
+  
+  (+ 1 2)
+  #_(populate-db))
+
+                                        ;(defn get-song-by-id [id]
+;  (get-in db [:songs (keyword id)]))
+(defn get-song [id]
+  (populate-with-song-metadata (io/file (:path (get-song-by-id sqlitedb {:id id})))))
+
+(defn get-songs []
+  (let [songs (get-all-songs sqlitedb)]
+    (map #(populate-with-song-metadata (io/file (:path %))) songs)))
+
+(defn get-albums []
+  (get-all-albums sqlitedb))
+
+(defn get-album-songs [album-id]
+  (let [songs (get-songs-by-album-id sqlitedb {:album_id album-id})]
+    (map #(populate-with-song-metadata (io/file (:path %))) songs)))
 
 (defstate db :start (start-sql-connection))
 
-(defn get-song-by-id [id]
-  (get-in db [:songs (keyword id)]))
