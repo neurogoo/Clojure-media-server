@@ -78,21 +78,22 @@
   (+ 1 2)
   #_(populate-db))
 
-                                        ;(defn get-song-by-id [id]
-;  (get-in db [:songs (keyword id)]))
-(defn get-song [id]
+(defn get-song-data [id]
+  (io/file (:path (get-song-by-id sqlitedb {:id id}))))
+                                       
+(defn get-song-metadata [id]
   (populate-with-song-metadata (io/file (:path (get-song-by-id sqlitedb {:id id})))))
 
 (defn get-songs []
   (let [songs (get-all-songs sqlitedb)]
-    (map #(populate-with-song-metadata (io/file (:path %))) songs)))
+    (map #(assoc (populate-with-song-metadata (io/file (:path %))) :id (:id %)) songs)))
 
 (defn get-albums []
   (get-all-albums sqlitedb))
 
 (defn get-album-songs [album-id]
   (let [songs (get-songs-by-album-id sqlitedb {:album_id album-id})]
-    (map #(populate-with-song-metadata (io/file (:path %))) songs)))
+    (map #(assoc (populate-with-song-metadata (io/file (:path %))) :id (:id %)) songs)))
 
 (defstate db :start (start-sql-connection))
 

@@ -33,7 +33,8 @@
                  [reagent "0.6.0"]
                  [reagent-forms "0.5.25"]
                  [reagent-utils "0.2.0"]
-                 [re-frame "0.9.1"]]
+                 [re-frame "0.9.1"]
+                 [binaryage/devtools "0.8.3"]]
 
   :plugins [[lein-environ "1.0.2"]
             [lein-cljsbuild "1.1.1"]
@@ -80,7 +81,8 @@
               :output-dir "target/cljsbuild/public/js/out"
               :source-map true
               :optimizations :none
-              :pretty-print  true}}
+              :pretty-print  true
+              :preloads       [devtools.preload]}}
 
 
 

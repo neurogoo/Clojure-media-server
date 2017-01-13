@@ -5,4 +5,7 @@
 (def default-value                                          ;; what gets put into app-db by default.
   {:album-songs {}
    :albums {}
-   :current-song {}})                                          ;; show all todos
+   :current-song {:title ""
+                  :track-number ""
+                  :url "/song/1"}
+   :playlist ()})                                          ;; show all todos

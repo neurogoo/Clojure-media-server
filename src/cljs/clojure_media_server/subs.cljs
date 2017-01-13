@@ -19,3 +19,29 @@
  :current-song
  (fn [db _]
    (:current-song db)))
+
+(reg-sub
+ :current-song-name
+ (fn [_ _]  
+   (subscribe [:current-song]))
+ (fn [song _]
+   (:title song)))
+
+(reg-sub
+ :current-song-track-number
+ (fn [_ _]  
+   (subscribe [:current-song]))
+ (fn [song _]
+   (:track-number song)))
+
+(reg-sub
+ :current-song-data
+ (fn [_ _]  
+   (subscribe [:current-song]))
+ (fn [song _]
+   (:url song)))
+
+(reg-sub
+ :playlist
+ (fn [db _]
+   (:playlist db)))

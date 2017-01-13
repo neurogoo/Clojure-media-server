@@ -42,7 +42,7 @@
 (defn return-song-data [id]
   {:status 200
    :headers {"Content-Type" "audio/mpeg"}
-   :body (mylib/get-song-data id)})
+   :body (database/get-song-data id)})
 
 (defn return-song-metadata [id]
   (mylib/get-song-metadata id))
