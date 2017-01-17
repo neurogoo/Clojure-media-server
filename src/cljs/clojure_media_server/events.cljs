@@ -49,19 +49,22 @@
                        (assoc % :selected? (not (:selected? %)))
                        %) (:albums db)))))
 
+(defn current-song-hash [song]
+  {:id (:id song)
+   :title (:title song)
+   :track-number (:track-number song)
+   :url (str "/song/" (:id song))})
+
 (reg-event-db
    :update-current-song
    (fn [db [_ song]]
      (let [current-song (first (filter #(= song (:id %)) (flatten (vals (:album-songs db)))))
            current-album (first (first (filter #(some (fn [e] (= song (:id e))) (second %)) (:album-songs db))))]
-       (assoc (assoc db :current-song {:id song
-                                       :title (:title current-song)
-                                       :track-number (:track-number current-song)
-                                       :url (str "/song/" song)})
-              :playlist (current-album (:album-songs db))))))
+       (assoc (assoc db :current-song (current-song-hash current-song))
+              :playlist (sort-by #(js/parseInt (:track-number %)) (current-album (:album-songs db)))))))
 
 (reg-event-db
  :playlist-next-song
  (fn [db _]
    (let [current-song-id (:id (:current-song db))]
-     (second (drop-while #(not= current-song-id (:id %)) (:playlist db))))))
+     (assoc db :current-song (current-song-hash (second (drop-while #(not= current-song-id (:id %)) (:playlist db))))))))

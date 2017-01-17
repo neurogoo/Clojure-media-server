@@ -31,14 +31,22 @@
             ^{:key (:id album)} [display-album (:name album) (:id album) (:selected? album)]))])
 
 (defn audio-player-inner [data title track-number]
-  (let [!audio (atom nil)]
+  (let [!audio (atom nil) !event-handler-added? (atom nil)]
     [:div
      [:div
       [:div (str "Title: " title)] 
       [:div (str "Track-number: " track-number)]
       [:audio {:src data
+               :id "audiotag"
                :ref (fn [el]
-                        (reset! !audio el))
+                      (reset! !audio el)
+                      (when-let [audio @!audio]
+                        (when (not @!event-handler-added?)
+                          (.log js/console "Event handler lisätty")
+                          (reset! !event-handler-added? nil)
+                          (.addEventListener audio "ended" (fn [e]
+                                                             (dispatch [:playlist-next-song])
+                                                             (.play audio))))))
                :controls true}]
       [:div
         [:button {:on-click (fn []
