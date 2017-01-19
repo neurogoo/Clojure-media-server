@@ -4,7 +4,8 @@
             [cprop.core :refer [load-config]]
             [id3]
             [claudio.id3 :as clid3]
-            [hugsql.core :as hugsql]))
+            [hugsql.core :as hugsql]
+            [config.core]))
 
 (def sqlitedb
   {:classname   "org.sqlite.JDBC",
@@ -74,7 +75,7 @@
                                           :path (:path %)}) songs)))))
 
 (defn start-sql-connection []
-  
+  (refresh-database)
   (+ 1 2)
   #_(populate-db))
 

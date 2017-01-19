@@ -44,17 +44,23 @@
                         (when (not @!event-handler-added?)
                           (.log js/console "Event handler lisätty")
                           (reset! !event-handler-added? nil)
+                          (.addEventListener audio "loadstart" #(.play audio))
                           (.addEventListener audio "ended" (fn [e]
-                                                             (dispatch [:playlist-next-song])
+                                                             (dispatch [:playlist-next-song audio])
                                                              (.play audio))))))
-               :controls true}]
+               :controls true
+               :autoplay true}]
       [:div
-        [:button {:on-click (fn []
+       [:button {}
+        "Previous"]
+       [:button {:on-click (fn []
                               (when-let [audio @!audio] ;; not nil?
                                 (if (.-paused audio)
                                   (.play audio)
                                   (.pause audio))))}
-         "Toogle"]]]]))
+         "Toogle"]
+       [:button {:on-click #(dispatch [:playlist-next-song])}
+        "Next"]]]]))
 
 (defn audio-player-outer []
   (let [data (subscribe [:current-song-data])
@@ -63,9 +69,19 @@
     (fn []
       [audio-player-inner @data @song-title @song-track-number])))
 
+(defn refresh-icon [])
+
+(defn animated-refresh-icon [])
+
+(defn refresh-database []
+  [:label "Päivitä tietokanta "
+   [:i.fa.fa-refresh {:aria-hidden "true"
+                      :on-click #(.log js/console "Päivittää")}]])
+
 (defn home-page []
   [:div [:h2 "Clojure media server"]
    [audio-player-outer]
+   [refresh-database]
    [show-albums]])
 
 (defn about-page []
