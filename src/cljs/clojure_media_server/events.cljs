@@ -1,6 +1,7 @@
 (ns clojure-media-server.events
   (:require [clojure-media-server.db :refer [default-value]]
-            [ajax.core :refer [GET POST]]              
+            [ajax.core :refer [GET POST]]
+            [clojure.zip :as zip]
             [re-frame.core :refer [reg-event-db reg-event-fx inject-cofx path trim-v
                                   after debug dispatch]]))
 
@@ -55,16 +56,33 @@
    :track-number (:track-number song)
    :url (str "/song/" (:id song))})
 
+(defn search-song-from-album-by-id [playlist id]
+  (if (or (zip/end? playlist) (= (:id (zip/node playlist)) id))
+    playlist
+    (recur (zip/next playlist) id)))
+
+(defn zip-album-playlist [playlist current-song]
+  (let [playzip (zip/seq-zip (seq playlist))]
+    (search-song-from-album-by-id playzip (:id current-song))))
+
 (reg-event-db
    :update-current-song
    (fn [db [_ song]]
      (let [current-song (first (filter #(= song (:id %)) (flatten (vals (:album-songs db)))))
            current-album (first (first (filter #(some (fn [e] (= song (:id e))) (second %)) (:album-songs db))))]
        (assoc (assoc db :current-song (current-song-hash current-song))
-              :playlist (sort-by #(js/parseInt (:track-number %)) (current-album (:album-songs db)))))))
+              :playlist (zip-album-playlist (sort-by #(js/parseInt (:track-number %)) (current-album (:album-songs db))) current-song)))))
 
 (reg-event-db
  :playlist-next-song
  (fn [db _]
-   (let [current-song-id (:id (:current-song db))]
-     (assoc db :current-song (current-song-hash (second (drop-while #(not= current-song-id (:id %)) (:playlist db))))))))
+   (let [next-song (zip/next (:playlist db))]
+     (assoc (assoc db :current-song (current-song-hash (zip/node next-song)))
+            :playlist next-song))))
+
+(reg-event-db
+ :playlist-previous-song
+ (fn [db _]
+   (let [prev-song (zip/prev (:playlist db))]
+     (assoc (assoc db :current-song (current-song-hash (zip/node prev-song)))
+            :playlist prev-song))))

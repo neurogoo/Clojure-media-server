@@ -42,7 +42,7 @@
   "Fetch all files from base folder and all folders under it"
   []
   (let [music-library-home (or (:cloms-music-home (load-config)) "/home/tokuogum/Clojure/clojure-media-server/testmedia")]
-    (map #(populate-with-song-metadata %)
+    (pmap #(populate-with-song-metadata %)
        (filter #(re-matches #"(.*).mp3$" (.getPath %))
                (flatten (all-files-in-folder (io/file music-library-home)))))))
 
@@ -68,14 +68,15 @@
         albums (get-all-album-titles songs)]
     (recreate-album-table)
     (recreate-song-table)
-    (dorun (map #(insert-album sqlitedb {:name %}) albums))
+    (insert-albums sqlitedb {:albums (map #(vector %) albums)})
     (let [albums (get-all-albums sqlitedb)]
-      (dorun (map #(insert-song sqlitedb {:album_id (:id (first (filter (fn [album] (= (:album %) (:name album)))(get-all-albums sqlitedb))))
-                                          :name (:title %)
-                                          :path (:path %)}) songs)))))
+      (insert-songs sqlitedb {:songs (map #(vector (:id (first (filter (fn [album] (= (:album %) (:name album))) albums)))
+                                                   (:title %)
+                                                   (:path %)) songs)}))))
 
 (defn start-sql-connection []
-  (refresh-database)
+  (when (config.core/env :production)
+    (refresh-database))
   (+ 1 2)
   #_(populate-db))
 

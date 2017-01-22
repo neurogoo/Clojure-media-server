@@ -51,14 +51,14 @@
                :controls true
                :autoplay true}]
       [:div
-       [:button {}
+       [:button {:on-click #(dispatch [:playlist-previous-song])}
         "Previous"]
        [:button {:on-click (fn []
                               (when-let [audio @!audio] ;; not nil?
                                 (if (.-paused audio)
                                   (.play audio)
                                   (.pause audio))))}
-         "Toogle"]
+         "Toggle"]
        [:button {:on-click #(dispatch [:playlist-next-song])}
         "Next"]]]]))
 
