@@ -3,7 +3,7 @@
             [re-frame.core :refer [subscribe dispatch]]))
 
 (defn clickable-link [{id :id, title :title}]
-  [:li {:on-click (fn [e]
+  [:li.song {:on-click (fn [e]
                     (dispatch [:update-current-song id])
                     (.stopPropagation e))}
    title
@@ -17,7 +17,7 @@
 
 (defn display-album [album-name album-id selected?]
   (let [opened (reagent/atom false)]
-    [:ul {:on-click (fn [e]
+    [:ul.album {:on-click (fn [e]
                       (dispatch [:toggle-album-display album-id])
                       (dispatch [:get-album-songs album-id]))}
      album-name
@@ -41,13 +41,7 @@
                :ref (fn [el]
                       (reset! !audio el)
                       (when-let [audio @!audio]
-                        (when (not @!event-handler-added?)
-                          (.log js/console "Event handler lisätty")
-                          (reset! !event-handler-added? nil)
-                          (.addEventListener audio "loadstart" #(.play audio))
-                          (.addEventListener audio "ended" (fn [e]
-                                                             (dispatch [:playlist-next-song audio])
-                                                             (.play audio))))))
+                        (dispatch [:add-music-listener audio])))
                :controls true
                :autoplay true}]
       [:div

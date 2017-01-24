@@ -8,4 +8,5 @@
    :current-song {:title ""
                   :track-number ""
                   :url "/song/1"}
-   :playlist ()})                                          ;; show all todos
+   :playlist ()
+   :music-autoplay-handler-added? false})                                          ;; show all todos

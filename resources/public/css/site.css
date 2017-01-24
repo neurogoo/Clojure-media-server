@@ -54,3 +54,11 @@ html, body {
 .site-footer {
   background: orange;
 }
+
+.album:hover{
+    background: orange;
+}
+
+.song:hover{
+    background: brown;
+}

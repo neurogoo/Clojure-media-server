@@ -86,3 +86,16 @@
    (let [prev-song (zip/prev (:playlist db))]
      (assoc (assoc db :current-song (current-song-hash (zip/node prev-song)))
             :playlist prev-song))))
+
+(reg-event-db
+ :add-music-listener
+ (fn [db [_ audio]]
+   (if (not (:music-autoplay-handler-added? db))
+     (do
+       (.log js/console "Event handler lisätty")
+       (.addEventListener audio "loadstart" #(.play audio))
+       (.addEventListener audio "ended" (fn [e]
+                                          (dispatch [:playlist-next-song audio])
+                                          (.play audio)))
+       (assoc db :music-autoplay-handler-added? true))
+     db)))
