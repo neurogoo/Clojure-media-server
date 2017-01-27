@@ -71,10 +71,6 @@
   (GET "/album" [] {:status 200
                     :headers {"Content-Type" "application/transit+json; charset=UTF-8"}
                     :body (database/get-albums)})
-  (GET "/arttest" [] {:status 200
-                      :headers {"Content-Type" "image/jpeg"}
-                      :body (database/fetch-image-test)
-                      })
   (resources "/")
   (not-found "Not Found"))
 
