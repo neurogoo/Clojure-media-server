@@ -55,10 +55,27 @@ html, body {
   background: orange;
 }
 
-.album:hover{
+.album:hover {
     background: orange;
 }
 
-.song:hover{
+.song:hover {
     background: brown;
+}
+
+.musicplayer {
+    border: solid;
+    background: white;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    left: 0;
+}
+
+.musictitle {
+    font-size: 1em;
+}
+
+.song-list {
+    margin-bottom: 2cm;
 }
