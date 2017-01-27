@@ -5,7 +5,8 @@
             [id3]
             [claudio.id3 :as clid3]
             [hugsql.core :as hugsql]
-            [config.core]))
+            [config.core]
+            [clojure-media-server.tag-library :as taglib]))
 
 (def sqlitedb
   {:classname   "org.sqlite.JDBC",
@@ -30,12 +31,14 @@
 
 (defn populate-with-song-metadata [song]
   "Read the tags of each file and return them as map"
-  (let [id3-tag-data (try (clid3/read-tag song)
-                          (catch Exception e {:title "" :album "" :track-number ""})
-                          (finally {:title "" :album "" :track-number ""}))]
+  (let [default-song-values {:title "" :album "" :track-number "" :artist ""}
+        id3-tag-data (try (clid3/read-tag song)
+                          (catch Exception e default-song-values)
+                          (finally default-song-values))]
     (hash-map :path (.getPath song)
               :title (.trim (or (:title id3-tag-data) ""))
               :album (.trim (or (:album id3-tag-data) ""))
+              :artist (.trim (or (:artist id3-tag-data) "")) 
               :track-number (.trim (or (:track id3-tag-data) "")))))
 
 (defn get-files-in-folder
@@ -79,6 +82,9 @@
     (refresh-database))
   (+ 1 2)
   #_(populate-db))
+
+(defn get-song-album-art [id]
+  (taglib/get-image-data (io/file (:path (get-song-by-id sqlitedb {:id id})))))
 
 (defn get-song-data [id]
   (io/file (:path (get-song-by-id sqlitedb {:id id}))))

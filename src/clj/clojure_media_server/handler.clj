@@ -62,12 +62,19 @@
   (GET "/song/:id/data" [id] {:status 200
                               :headers {"Content-Type" "application/transit+json; charset=UTF-8"}
                               :body (return-song-metadata id)})
+  (GET "/song/:id/art" [id] {:status 200
+                             :headers {"Content-Type" "image/jpeg"}
+                             :body (database/get-song-album-art id)})
   (POST "/files" [req] {:status 200
                         :headers {"Content-Type" "application/transit+json; charset=UTF-8"}
                         :body (return-files-in-folder (get-in req [:params "folder"]))}#_(response (return-files-in-folder (get-in req [:params "folder"]))))
   (GET "/album" [] {:status 200
                     :headers {"Content-Type" "application/transit+json; charset=UTF-8"}
-                    :body (database/get-albums)})  
+                    :body (database/get-albums)})
+  (GET "/arttest" [] {:status 200
+                      :headers {"Content-Type" "image/jpeg"}
+                      :body (database/fetch-image-test)
+                      })
   (resources "/")
   (not-found "Not Found"))
 

@@ -54,6 +54,7 @@
   {:id (:id song)
    :title (:title song)
    :track-number (:track-number song)
+   :artist (:artist song)
    :url (str "/song/" (:id song))})
 
 (defn search-song-from-album-by-id [playlist id]

@@ -5,8 +5,10 @@
 (def default-value                                          ;; what gets put into app-db by default.
   {:album-songs {}
    :albums {}
-   :current-song {:title ""
+   :current-song {:id ""
+                  :artist ""
+                  :title ""
                   :track-number ""
                   :url "/song/1"}
-   :playlist ()
+   :playlist '()
    :music-autoplay-handler-added? false})                                          ;; show all todos

@@ -42,6 +42,20 @@
    (:url song)))
 
 (reg-sub
+ :current-song-album-art
+ (fn [_ _]  
+   (subscribe [:current-song]))
+ (fn [song _]
+   (str (:url song) "/art")))
+
+(reg-sub
+ :current-song-artist
+ (fn [_ _]  
+   (subscribe [:current-song]))
+ (fn [song _]
+   (:artist song)))
+
+(reg-sub
  :playlist
  (fn [db _]
    (:playlist db)))
