@@ -7,6 +7,7 @@
   font-size: 1.125em;
   color: #333;
   line-height: 1.5em;
+  background-color: #DCC7AA;
 }
 
 h1, h2, h3 {
@@ -57,11 +58,11 @@ html, body {
 }
 
 .album:hover {
-    background: orange;
+    background: #F7882F;
 }
 
 .song:hover {
-    background: brown;
+    background: #F7C331;
 }
 
 .musicplayer {
