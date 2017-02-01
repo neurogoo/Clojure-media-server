@@ -6,7 +6,8 @@
             [claudio.id3 :as clid3]
             [hugsql.core :as hugsql]
             [config.core]
-            [clojure-media-server.tag-library :as taglib]))
+            [clojure-media-server.tag-library :as taglib]
+            [me.raynes.conch.low-level :as sh]))
 
 (def sqlitedb
   {:classname   "org.sqlite.JDBC",
@@ -102,6 +103,9 @@
 (defn get-album-songs [album-id]
   (let [songs (get-songs-by-album-id sqlitedb {:album_id album-id})]
     (map #(assoc (populate-with-song-metadata (io/file (:path %))) :id (:id %)) songs)))
+
+(defn flac->mp3-test []
+  (:out (sh/proc "ffmpeg" "-i" "Lataukset/Partytime/ClariS - PARTY TIME/05 - RESTART.flac" "-f" "opus" "-")))
 
 (defstate db :start (start-sql-connection))
 

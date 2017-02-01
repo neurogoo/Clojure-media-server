@@ -23,11 +23,12 @@
                  [secretary "1.2.3"]
                  [venantius/accountant "0.1.7"
                   :exclusions [org.clojure/tools.reader]]
-                 [cljs-ajax "0.5.8"]
+                 [me.raynes/conch "0.8.0"]
                  ;;database
                  [com.layerware/hugsql "0.4.7"]
                  [org.xerial/sqlite-jdbc "3.15.1"]
-                 ;;frontend 
+                 ;;frontend
+                 [cljs-ajax "0.5.8"]
                  [org.webjars/font-awesome "4.7.0"]
                  [ring-webjars "0.1.1"]
                  [reagent "0.6.0"]

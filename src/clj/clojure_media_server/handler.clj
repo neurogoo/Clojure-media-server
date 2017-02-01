@@ -7,6 +7,8 @@
             [clojure-media-server.library :as mylib]
             [clojure-media-server.database :as database]
             [mount.core :as mount]
+            [clojure.java.io :as io]
+            [ring.util.io :refer [piped-input-stream]]
             [config.core :refer [env]]))
 
 (def mount-target
@@ -71,6 +73,10 @@
   (GET "/album" [] {:status 200
                     :headers {"Content-Type" "application/transit+json; charset=UTF-8"}
                     :body (database/get-albums)})
+  (GET "/conversiontest" [] {:status 200
+                             :headers {"Content-Type" "application/ogg"}
+                             :body (response (piped-input-stream
+                                    #(io/copy (database/flac->mp3-test) % :buffer-size 1)))})  
   (resources "/")
   (not-found "Not Found"))
 
