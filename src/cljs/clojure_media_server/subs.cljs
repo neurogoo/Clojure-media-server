@@ -5,6 +5,12 @@
  :showing
  (fn [db _]        ;; db is the (map) value in app-db
    (:showing db))) ;; I repeat:  db is a value. Not a ratom.  And this fn does not return a reaction, just a value.
+
+(reg-sub
+ :current-view
+ (fn [db _]
+   (:current-view db)))
+
 (reg-sub
  :albums
  (fn [db _]

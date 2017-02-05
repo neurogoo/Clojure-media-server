@@ -53,6 +53,9 @@
 (defn get-all-album-titles [songs]
   (distinct (map :album songs)))
 
+(defn get-all-artists-names [songs]
+  (distinct (map :artist songs)))
+
 (defn populate-db []
   (let [songs (get-files-in-folder)
         albums (get-all-album-titles songs)]
@@ -63,23 +66,53 @@
   (drop-albums-table sqlitedb)
   (create-album-table sqlitedb))
 
+(defn recreate-artist-table []
+  (drop-artist-table sqlitedb)
+  (create-artist-table sqlitedb))
+
 (defn recreate-song-table []
   (drop-songs-table sqlitedb)
   (create-song-table sqlitedb))
 
-(defn refresh-database []
+(defn recreate-song-virtual-table []
+  (drop-songs-virtual-table sqlitedb)
+  (create-songs-virtual-table sqlitedb)
+  (populate-songs-virtual-table sqlitedb))
+
+(defn recreate-albums-virtual-table []
+  (drop-albums-virtual-table sqlitedb)
+  (create-albums-virtual-table sqlitedb)
+  (populate-albums-virtual-table sqlitedb))
+
+(defn recreate-artists-virtual-table []
+  (drop-artists-virtual-table sqlitedb)
+  (create-artists-virtual-table sqlitedb)
+  (populate-artists-virtual-table sqlitedb))
+
+(defn refresh-database
+  "Drop all tables and recreate them and populate their data"
+  []
   (let [songs (get-files-in-folder)
-        albums (get-all-album-titles songs)]
+        albums (get-all-album-titles songs)
+        artists (get-all-artists-names songs)]
     (recreate-album-table)
+    (recreate-artist-table)
     (recreate-song-table)
     (insert-albums sqlitedb {:albums (map #(vector %) albums)})
-    (let [albums (get-all-albums sqlitedb)]
+    (insert-artists sqlitedb {:artists (map #(vector %) artists)})
+    (let [albums (get-all-albums sqlitedb)
+          artists (get-all-artists sqlitedb)]
       (insert-songs sqlitedb {:songs (map #(vector (:id (first (filter (fn [album] (= (:album %) (:name album))) albums)))
+                                                   (:id (first (filter (fn [artist] (= (:artist %) (:name artist))) artists)))
                                                    (:title %)
-                                                   (:path %)) songs)}))))
+                                                   (:path %)) songs)}))
+    (recreate-song-virtual-table)
+    (recreate-albums-virtual-table)
+    (recreate-artists-virtual-table)))
 
 (defn start-sql-connection []
-  (when (config.core/env :production)
+  (refresh-database)
+  #_(when (config.core/env :production)
     (refresh-database))
   (+ 1 2)
   #_(populate-db))
@@ -100,9 +133,12 @@
 (defn get-albums []
   (get-all-albums sqlitedb))
 
+(defn get-artists []
+  (get-all-artists sqlitedb))
+
 (defn get-album-songs [album-id]
   (let [songs (get-songs-by-album-id sqlitedb {:album_id album-id})]
-    (map #(assoc (populate-with-song-metadata (io/file (:path %))) :id (:id %)) songs)))
+    (pmap #(assoc (populate-with-song-metadata (io/file (:path %))) :id (:id %)) songs)))
 
 (defn flac->mp3-test []
   (:out (sh/proc "ffmpeg" "-i" "Lataukset/Partytime/ClariS - PARTY TIME/05 - RESTART.flac" "-f" "opus" "-")))

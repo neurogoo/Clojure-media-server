@@ -73,6 +73,9 @@
   (GET "/album" [] {:status 200
                     :headers {"Content-Type" "application/transit+json; charset=UTF-8"}
                     :body (database/get-albums)})
+  (GET "/artist" [] {:status 200
+                    :headers {"Content-Type" "application/transit+json; charset=UTF-8"}
+                    :body (database/get-artists)})
   (GET "/conversiontest" [] {:status 200
                              :headers {"Content-Type" "application/ogg"}
                              :body (response (piped-input-stream

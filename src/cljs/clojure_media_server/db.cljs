@@ -11,4 +11,5 @@
                   :track-number ""
                   :url "/song/1"}
    :playlist '()
-   :music-autoplay-handler-added? false})                                          ;; show all todos
+   :music-autoplay-handler-added? false
+   :current-view :music-album})                                          ;; show all todos
