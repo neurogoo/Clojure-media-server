@@ -9,7 +9,8 @@
             [mount.core :as mount]
             [clojure.java.io :as io]
             [ring.util.io :refer [piped-input-stream]]
-            [config.core :refer [env]]))
+            [config.core :refer [env]]
+            [org.httpkit.server :refer [send! with-channel on-close on-receive]]))
 
 (def mount-target
   [:div#app
@@ -49,6 +50,12 @@
 (defn return-song-metadata [id]
   (mylib/get-song-metadata id))
 
+(defn ws-handler [request]
+ (with-channel request channel
+               (connect! channel)
+               (on-close channel (partial disconnect! channel))
+               (on-receive channel #(notify-clients %))))
+
 (defroutes routes
   (GET "/" [] (loading-page))
   (GET "/about" [] (loading-page))
@@ -79,7 +86,8 @@
   (GET "/conversiontest" [] {:status 200
                              :headers {"Content-Type" "application/ogg"}
                              :body (response (piped-input-stream
-                                    #(io/copy (database/flac->mp3-test) % :buffer-size 1)))})  
+                                              #(io/copy (database/flac->mp3-test) % :buffer-size 1)))})
+  (GET "/ws" request (ws-handler request))
   (resources "/")
   (not-found "Not Found"))
 
